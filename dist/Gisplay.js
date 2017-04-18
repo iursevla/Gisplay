@@ -2638,7 +2638,7 @@ class Legend {
         row.appendChild(color);
         row.appendChild(value);
 
-        row.onclick = function () {
+        row.onclick = () =>  {
             if (mapobj.gisplayOptions.legendToggle) {
                 const toFade = !currentaes.enableDisable();
                 if (toFade)
@@ -4167,7 +4167,7 @@ class Gisplay {
 
 class GisplayLibrary {
 
-    static createBGMap() {
+    static createBGMapChoropleth() {
         L.mapbox.accessToken = 'pk.eyJ1IjoibG9sYXNkIiwiYSI6ImNpbmxsZDJkejAwOHR2Zm0yZHVwOWV1ejEifQ.SJ6CupBlW0gPic0n-HgY6w';
         window.map = L.mapbox.map('map', 'mapbox.streets').setView([49.36855556, -81.66371667], 4);
     }
@@ -4182,9 +4182,141 @@ class GisplayLibrary {
         };
 
         var reader = new FileReader();
-        reader.onloadend = function () {
+        reader.onloadend = () =>  {
             var data = JSON.parse(reader.result);
             gisplay.makeChoropleth(mb, data, options);
+        };
+        reader.readAsText(document.getElementById("file").files[0]);
+    }
+
+    static createBGMapChangeMap() {
+        L.mapbox.accessToken = 'pk.eyJ1IjoibG9sYXNkIiwiYSI6ImNpbmxsZDJkejAwOHR2Zm0yZHVwOWV1ejEifQ.SJ6CupBlW0gPic0n-HgY6w';
+        window.map = L.mapbox.map('map', 'mapbox.dark').setView([49.36855556, -81.66371667], 4);
+    }
+
+    static startChangeMap() {
+        let mb = new BGMapMapBox(window.map);
+        var gisplay = new Gisplay();
+
+        var options = {
+            minuend: 'f6',
+            subtrahend: 'f2',
+            alpha: 1,
+            legendTitle: "Change between 2009 and 2013"
+        };
+
+        var reader = new FileReader();
+        reader.onloadend = () =>  {
+            var data = JSON.parse(reader.result);
+            gisplay.makeChangeMap(mb, data, options);
+        };
+        reader.readAsText(document.getElementById("file").files[0]);
+    }
+
+    static createBGMapDotMap() {
+        L.mapbox.accessToken = 'pk.eyJ1IjoibG9sYXNkIiwiYSI6ImNpbmxsZDJkejAwOHR2Zm0yZHVwOWV1ejEifQ.SJ6CupBlW0gPic0n-HgY6w';
+        window.map = L.mapbox.map('map', 'mapbox.dark').setView([49.36855556, -81.66371667], 4);
+    }
+
+    static startDotMap() {
+        let mb = new BGMapMapBox(window.map);
+        var gisplay = new Gisplay();
+
+        var options = {
+            attr: 'f1',
+            legendTitle: "Alcohol"
+        };
+
+        var reader = new FileReader();
+        reader.onloadend = () =>  {
+            var data = JSON.parse(reader.result);
+            gisplay.makeDotMap(mb, data, options);
+        };
+        reader.readAsText(document.getElementById("file").files[0]);
+    }
+
+    static createGoogleMapsBGMap() {
+        window.map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 4,
+            center: { lat: 49.36855556, lng: -81.66371667 }
+        });
+    }
+
+    static startGoogleMapsChoropleth() {
+        let gm = new BGMapGoogleMaps(window.map);
+        let gisplay = new Gisplay();
+
+        let options = {
+            attr: 'f3',
+            legendTitle: 'Fatals'
+        };
+
+        let reader = new FileReader();
+        reader.onloadend = () => {
+            let data = JSON.parse(reader.result);
+            gisplay.makeChoropleth(gm, data, options);
+        };
+        reader.readAsText(document.getElementById("file").files[0]);
+    }
+
+    static createBGPSymbols() {
+        L.mapbox.accessToken = 'pk.eyJ1IjoibG9sYXNkIiwiYSI6ImNpbmxsZDJkejAwOHR2Zm0yZHVwOWV1ejEifQ.SJ6CupBlW0gPic0n-HgY6w';
+        window.map = L.mapbox.map('map', 'mapbox.light').setView([49.36855556, -81.66371667], 4);
+    }
+
+    static startPSymbols() {
+        let mb = new BGMapMapBox(window.map);
+        var gisplay = new Gisplay();
+
+        var options = {
+            maxPointSize: 100,
+            minPointSize: 5,
+            attr: 'f1',
+            alpha: 1.0,
+            numberOfLegendItems: 3,
+            legendTitle: "Accidents"
+        };
+
+        var reader = new FileReader();
+        reader.onloadend = () =>  {
+            var data = JSON.parse(reader.result);
+            gisplay.makeProportionalSymbolsMap(mb, data, options);
+        };
+        reader.readAsText(document.getElementById("file").files[0]);
+    }
+
+    static createHereMapsBGMap() {
+        let platform = new H.service.Platform({
+            'app_id': '8fEgxjuheFTYKcvVQhum',
+            'app_code': '5z2K0DvfXPNRLVuIaXcfgg'
+        });
+        let defaultLayers = platform.createDefaultLayers();
+        window.map = new H.Map(
+            document.getElementById('map'),
+            defaultLayers.normal.map,
+            {
+                zoom: 4,
+                center: { lat: 49.36855556, lng: -81.66371667 }
+            });
+        let mapEvents = new H.mapevents.MapEvents(map);//Enable events
+        let behavior = new H.mapevents.Behavior(mapEvents);//Enable zoom and pan
+    }
+
+    static startHereMapsChoropleth() {
+        let hereMaps = new BGMapHereMaps(window.map);
+        let gisplay = new Gisplay();
+
+        var options = {
+            minuend: 'f6',
+            subtrahend: 'f2',
+            alpha: 1,
+            legendTitle: "Change between 2009 and 2013"
+        };
+
+        let reader = new FileReader();
+        reader.onloadend = () =>  {
+            let data = JSON.parse(reader.result);
+            gisplay.makeChangeMap(hereMaps, data, options);
         };
         reader.readAsText(document.getElementById("file").files[0]);
     }

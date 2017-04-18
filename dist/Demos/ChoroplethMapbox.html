@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Choropleth Map</title>
+
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
+
+    <!-- Custom CSS and icon -->
+    <link href='../css/gisplay.css' rel='stylesheet' />
+    <link rel='shortcut icon' type='image/x-icon' href='../css/favicon.ico' />
+    <link href='../css/demos.css' rel='stylesheet' />
+
+    <!-- ES5 Libraries used  -->
+    <script type="text/javascript" src="../lib/kdtree.js"></script>
+    <script type="text/javascript" src="../lib/rtree.js"></script>
+    <script type="text/javascript" src="../lib/chroma.min.js"></script>
+    <script type="text/javascript" src="../lib/earcut.js"></script>
+    <script type="text/javascript" src="../Gisplay.js"></script>
+</head>
+
+<body>
+
+    <h1 id="h1"> Gisplay Choropleth Map with Mapbox as background provider.</h1>
+    <p id="p">Load file [<span>usaaccidents_by_county.json</span>] or [<span>usaaccidents_by_year_state.json</span>] to see it in action.</p>
+
+    <input type="file" id="file" name="files">
+    <button id="submit" onclick="GisplayLibrary.startChoropleth();">Ok</button>
+    <div id="map"></div>
+   
+    <script>
+        window.onload = function () {
+            GisplayLibrary.createBGMapChoropleth();
+        };
+    </script>
+
+</body>
+
+</html>

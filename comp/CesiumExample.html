@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Cesium Choropleth!</title>
+    <script src="./chroma.min.js"></script>
+    <script src="./Cesium.js"></script>
+    <style src="./my.css"></style>
+    <style>
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="submit" onclick="load();">Click to load Geojson File</button>
+    <!--<button id="submit" onclick="load();">Ok</button>-->
+    <div id="cesiumContainer"></div>
+    <div class="_gisplaylegendBR" style=" position: absolute;
+             top: 80%;
+            left: 90%;"></div>
+    <script>
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            sceneMode: Cesium.SceneMode.SCENE2D,
+            timeline: false,
+            animation: false,
+            mapProjection : new Cesium.WebMercatorProjection(),
+        });
+
+        function load() {
+            console.log("2")
+            var promise = Cesium.GeoJsonDataSource.load('./county.json');
+
+            let options = {
+                colorScheme: ["#ffffb2", "#fecc5c", "#fd8d3c", "#e31a1c"],
+                numberOfClasses: 4,
+                attr: 'f3',
+                legendTitle: 'Fatals'
+            };
+
+            promise.then(function (dataSource) {
+                viewer.dataSources.add(dataSource);
+
+                var entities = dataSource.entities.values;
+                var finalValues = []
+                for (const e of entities)
+                    finalValues.push(e.properties.f3._value);
+                let classBreaks = [1, 37, 78, 155, 8587];//calcClassBreaks(finalValues, 'quantile', options.numberOfClasses);
+
+                for (let e of entities) {  //Percorrer as entities e para o f3 guardar todos os valors para 
+                    let classFinal = insertFeature(classBreaks, e.properties.f3._value);
+                    e.polygon.material = Cesium.Color.fromCssColorString(options.colorScheme[classFinal]);
+                    e.polygon.outline = true;
+                    e.polygon.outlineColor = Cesium.Color.BLACK;
+                }
+                insertLegend();
+            }).otherwise(function (error) {
+                window.alert(error);//Display any errrors encountered while loading.
+            });
+        }
+
+        function insertFeature(classBreaks, value) {
+            for (let i = 0; i < classBreaks.length - 1; i++)
+                if (value >= classBreaks[i] && value <= classBreaks[i + 1])
+                    return i;
+        }
+
+        function calcClassBreaks(numberValues, classBreakMethod, numberOfClasses) {
+            console.log(numberValues.length);
+            let classBreaks;
+            switch (classBreakMethod) {
+                case 'equidistant':
+                    classBreaks = chroma.limits(numberValues, 'e', numberOfClasses);
+                    break;
+                case 'quantile':
+                    classBreaks = chroma.limits(numberValues, 'q', numberOfClasses);
+                    break;
+                case 'k-means':
+                    classBreaks = chroma.limits(numberValues, 'k', numberOfClasses);
+                    break;
+                default:
+                    classBreaks = chroma.limits(numberValues, 'q', numberOfClasses);
+                    break;
+            }
+            return classBreaks;
+        }
+
+        function insertLegend() {
+            document.getElementsByClassName('_gisplaylegendBR')[0].innerHTML += `
+                <table style="z-index: 2000;">
+                    <th></th>
+                    <th></th>
+                    <tr>
+                        <td colspan="2" style="text-align: center; width: 100px;">Fatals</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="_gisplayrectangle" style="position: relative; background-color: rgb(255, 255, 178); height: 25px; width: 80px; border-color: rgb(0, 0, 0);"></div>
+                        </td>
+                        <td>[1, 37[</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="_gisplayrectangle" style="position: relative; background-color: rgb(254, 204, 92); height: 25px; width: 80px; border-color: rgb(0, 0, 0);"></div>
+                        </td>
+                        <td>[37, 78[</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="_gisplayrectangle" style="position: relative; background-color: rgb(253, 141, 60); height: 25px; width: 80px; border-color: rgb(0, 0, 0);"></div>
+                        </td>
+                        <td>[78, 155[</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="_gisplayrectangle" style="position: relative; background-color: rgb(227, 26, 28); height: 25px; width: 80px; border-color: rgb(0, 0, 0);"></div>
+                        </td>
+                        <td>[155, 8587]</td>
+                    </tr>
+                </table>
+            `;
+        }
+
+        var linkElement = document.createElement("link");
+        linkElement.rel = "stylesheet";
+        linkElement.href = "./widgets.css"; //Replace here
+
+        document.head.appendChild(linkElement);
+    </script>
+</body>
+
+</html>
+
+
+<!--   
+    //Get the array of entities
+     console.log(dataSource)
+    console.log(dataSource.entities)
+    console.log(dataSource.entities.values)
+    console.log(dataSource.entities.values[0]);
+    console.log(dataSource.entities.values[0].polygon);
+    console.log(dataSource.entities.values[0].name);
+    console.log(dataSource.entities.values[0].properties);
+    console.log(dataSource.entities.values[0].properties.f3);
+
+     function loadData() {
+            console.log("1")
+            var dataSource = Cesium.GeoJsonDataSource.load('./SampleData/Datasets/county.json');//county
+            viewer.dataSources.add(dataSource);
+            /* viewer.zoomTo(dataSource);*/
+        }
+
+    var viewer = new Cesium.Viewer('cesiumContainer');
+        var scene = viewer.scene;
+        scene.debugShowFramesPerSecond = true;
+        var numberOfPoints = 4000000;
+        var gridSize = 360 / Math.sqrt(numberOfPoints);
+        var isPointPrimitive = true;
+
+        if (isPointPrimitive) {
+            var points = scene.primitives.add(new Cesium.PointPrimitiveCollection());
+        } else {
+            var billboards = scene.primitives.add(new Cesium.BillboardCollection());
+            var canvas = document.createElement('canvas');
+            canvas.width = 10;
+            canvas.height = 10;
+            var context2D = canvas.getContext('2d');
+            context2D.beginPath();
+            context2D.arc(5, 5, 5, 0, Cesium.Math.TWO_PI, true);
+            context2D.closePath();
+            context2D.fillStyle = 'rgb(255, 255, 255)';
+            context2D.fill();
+        }
+
+        for (var longitude = -180; longitude < 180; longitude += gridSize) {
+            for (var latitude = -90; latitude < 90; latitude += gridSize / 2) {
+                if (isPointPrimitive) {
+                    points.add({
+                        position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+                        pixelSize: 10
+                    });
+                } else {
+                    billboards.add({
+                        imageId: 'billboard point',
+                        image: canvas,
+                        position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+                    });
+                }
+            }
+        }-->

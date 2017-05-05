@@ -11,7 +11,8 @@
     <title>Cesium Choropleth!</title>
     <script src="./chroma.min.js"></script>
     <script src="./Cesium.js"></script>
-    <style src="./my.css"></style>
+    <link href="./my.css" rel="stylesheet">
+    <link href="./widgets.css" rel="stylesheet">
     <style>
         html,
         body,
@@ -27,17 +28,14 @@
 
 <body>
     <button id="submit" onclick="load();">Click to load Geojson File</button>
-    <!--<button id="submit" onclick="load();">Ok</button>-->
     <div id="cesiumContainer"></div>
-    <div class="_gisplaylegendBR" style=" position: absolute;
-             top: 80%;
-            left: 90%;"></div>
+    <div class="_gisplaylegendBR"></div>
     <script>
         var viewer = new Cesium.Viewer('cesiumContainer', {
             sceneMode: Cesium.SceneMode.SCENE2D,
             timeline: false,
             animation: false,
-            mapProjection : new Cesium.WebMercatorProjection(),
+            mapProjection: new Cesium.WebMercatorProjection(),
         });
 
         function load() {
@@ -132,72 +130,10 @@
                     </tr>
                 </table>
             `;
+            let elem = document.getElementById('submit');
+            elem.parentNode.removeChild(elem);
         }
-
-        var linkElement = document.createElement("link");
-        linkElement.rel = "stylesheet";
-        linkElement.href = "./widgets.css"; //Replace here
-
-        document.head.appendChild(linkElement);
     </script>
 </body>
 
 </html>
-
-
-<!--   
-    //Get the array of entities
-     console.log(dataSource)
-    console.log(dataSource.entities)
-    console.log(dataSource.entities.values)
-    console.log(dataSource.entities.values[0]);
-    console.log(dataSource.entities.values[0].polygon);
-    console.log(dataSource.entities.values[0].name);
-    console.log(dataSource.entities.values[0].properties);
-    console.log(dataSource.entities.values[0].properties.f3);
-
-     function loadData() {
-            console.log("1")
-            var dataSource = Cesium.GeoJsonDataSource.load('./SampleData/Datasets/county.json');//county
-            viewer.dataSources.add(dataSource);
-            /* viewer.zoomTo(dataSource);*/
-        }
-
-    var viewer = new Cesium.Viewer('cesiumContainer');
-        var scene = viewer.scene;
-        scene.debugShowFramesPerSecond = true;
-        var numberOfPoints = 4000000;
-        var gridSize = 360 / Math.sqrt(numberOfPoints);
-        var isPointPrimitive = true;
-
-        if (isPointPrimitive) {
-            var points = scene.primitives.add(new Cesium.PointPrimitiveCollection());
-        } else {
-            var billboards = scene.primitives.add(new Cesium.BillboardCollection());
-            var canvas = document.createElement('canvas');
-            canvas.width = 10;
-            canvas.height = 10;
-            var context2D = canvas.getContext('2d');
-            context2D.beginPath();
-            context2D.arc(5, 5, 5, 0, Cesium.Math.TWO_PI, true);
-            context2D.closePath();
-            context2D.fillStyle = 'rgb(255, 255, 255)';
-            context2D.fill();
-        }
-
-        for (var longitude = -180; longitude < 180; longitude += gridSize) {
-            for (var latitude = -90; latitude < 90; latitude += gridSize / 2) {
-                if (isPointPrimitive) {
-                    points.add({
-                        position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-                        pixelSize: 10
-                    });
-                } else {
-                    billboards.add({
-                        imageId: 'billboard point',
-                        image: canvas,
-                        position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-                    });
-                }
-            }
-        }-->

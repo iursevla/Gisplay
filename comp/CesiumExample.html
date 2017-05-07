@@ -11,6 +11,7 @@
     <title>Cesium Choropleth!</title>
     <script src="./chroma.min.js"></script>
     <script src="./Cesium.js"></script>
+    <!--<script src="../Build/CesiumUnminified/Cesium.js"></script>-->
     <link href="./my.css" rel="stylesheet">
     <link href="./widgets.css" rel="stylesheet">
     <style>
@@ -27,7 +28,12 @@
 </head>
 
 <body>
-    <button id="submit" onclick="load();">Click to load Geojson File</button>
+    <div id="head">
+        <input type="file" id="file" name="files">
+        <button id="submit" onclick="readGeoJSON();">Load Geojson File from disk (Faster)</button> 
+        ← OR →
+        <button id="submit" onclick="load();">Load GeoJSON file from GitHub (Slower)</button>
+    </div>
     <div id="cesiumContainer"></div>
     <div class="_gisplaylegendBR"></div>
     <script>
@@ -37,10 +43,23 @@
             animation: false,
             mapProjection: new Cesium.WebMercatorProjection(),
         });
+        
+        function readGeoJSON() {
+            let reader = new FileReader();
+            reader.onloadend = () => {
+                load(JSON.parse(reader.result));
+            };
+            reader.readAsText(document.getElementById("file").files[0]);
+        }
 
-        function load() {
+        function load(data) {
             console.log("2")
-            var promise = Cesium.GeoJsonDataSource.load('./county.json');
+            let elem = document.getElementById('head');
+            elem.parentNode.removeChild(elem);
+            if (data)
+                var promise = Cesium.GeoJsonDataSource.load(data);//'./county.json');
+            else
+                var promise = Cesium.GeoJsonDataSource.load('./county.json');
 
             let options = {
                 colorScheme: ["#ffffb2", "#fecc5c", "#fd8d3c", "#e31a1c"],
@@ -130,8 +149,8 @@
                     </tr>
                 </table>
             `;
-            let elem = document.getElementById('submit');
-            elem.parentNode.removeChild(elem);
+          /*  let elem = document.getElementById('submit');
+            elem.parentNode.removeChild(elem);*/
         }
     </script>
 </body>
